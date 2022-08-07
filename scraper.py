@@ -106,7 +106,7 @@ def scrape(browser, content_links, worksheet, content_count):
             topics = meta_data_container.find_elements(By.XPATH, './/p/strong[contains(text(), "Topics:")]//following-sibling::a')
 
             for t in topics:
-                topic += f"{t.text } " if t != topics[-1] else t.text
+                topic += f"{t.text} / " if t != topics[-1] else t.text
                 
         except:
             topic = ""
@@ -127,7 +127,7 @@ def scrape(browser, content_links, worksheet, content_count):
             lexile_range = ""
 
         try:
-            lexile_measure = meta_data_container.find_element(By.XPATH, './/p/strong[contains(text(), "Lexile Measure:")]//following-sibling::a').text
+            lexile_measure = meta_data_container.find_elements(By.XPATH, './/p')[-3].text.split(":")[-1].strip()
         except:
             lexile_measure = ""
 
@@ -167,6 +167,11 @@ if  __name__  ==  "__main__" :
     # some contents are not accessed without login
     login(browser)
 
+    # re-try 
+    content_links = retry_worksheet.col_values(1)
+    if content_links:
+        scrape(browser, content_links, retry_worksheet, content_count=0)
+        
     # start page loop
     content_count = 0
     for page in range(1, last_page+1):
